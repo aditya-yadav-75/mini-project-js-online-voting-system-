@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Online Voting System</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to right, #1e3c72, #2a5298);
+        color: white;
+        text-align: center;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      h1 {
+        margin: 30px 0;
+      }
+      .vote-box {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 60px;
+      }
+      .vote-btn {
+        background: #ff9800;
+        border: none;
+        border-radius: 25px;
+        width: 35vw;
+        height: 60vh;
+        cursor: pointer;
+        position: relative;
+        transition:
+          transform 0.4s ease,
+          opacity 0.4s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .vote-btn img {
+        width: 80%;
+        height: 70%;
+        object-fit: cover;
+        border-radius: 18px;
+      }
+      .vote-btn p {
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 15px;
+      }
+      @keyframes jitter {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-6px);
+        }
+        50% {
+          transform: translateX(6px);
+        }
+        75% {
+          transform: translateX(-6px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+      .jitter {
+        animation: jitter 0.1s infinite;
+      }
+      .winner {
+        transform: scale(1.4);
+        box-shadow: 0 0 60px gold;
+        z-index: 5;
+      }
+
+      .loser {
+        opacity: 0.25;
+        transform: scale(0.8);
+      }
+      .winner-tag {
+        position: absolute;
+        bottom: 25px;
+        background: gold;
+        color: black;
+        padding: 12px 26px;
+        border-radius: 20px;
+        font-size: 26px;
+        font-weight: bold;
+      }
+      .results {
+        margin-bottom: 20px;
+        font-size: 26px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🗳 Online Voting System</h1>
+    <div class="vote-box">
+      <button id="btnA" class="vote-btn" onclick="voteA()">
+        <img src="candidatea.png" />
+        <p>Candidate A</p>
+      </button>
+      <button id="btnB" class="vote-btn" onclick="voteB()">
+        <img src="candidateb.png" />
+        <p>Candidate B</p>
+      </button>
+    </div>
+    <div class="results">
+      A Votes: <span id="countA">0</span> | B Votes: <span id="countB">0</span>
+    </div>
+    <audio id="bgMusic" src="bg-music.mp3" loop></audio>
+    <audio id="soundA" src="soundA.mp3"></audio>
+    <audio id="soundB" src="soundB.mp3"></audio>
+
+
+    <script>
+
+      let countA = 0;
+      let countB = 0;
+
+      const maxVotes = 10;
+      const bgMusic = document.getElementById("bgMusic");
+      const soundA = document.getElementById("soundA");
+      const soundB = document.getElementById("soundB");
+      const btnA = document.getElementById("btnA");
+      const btnB = document.getElementById("btnB");
+      const winA = new Audio("winA.mp3");
+      const winB = new Audio("winB.mp3");
+
+      document.addEventListener(
+        "click",
+        () => {
+          if (bgMusic.paused) bgMusic.play();
+        },
+        { once: true },
+      );
+
+      function stopAllAudio() {
+        bgMusic.pause();
+        soundA.pause();
+        soundB.pause();
+      }
+
+      function stopBG() {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+      }
+
+      function jitter(btn, sound) {
+        btn.classList.add("jitter");
+        sound.play();
+        sound.onended = () => btn.classList.remove("jitter");
+      }
+
+      function showWinner(winner, loser, winSound) {
+        stopAllAudio();
+        winSound.currentTime = 0;
+        winSound.play();
+        winner.classList.add("winner");
+        loser.classList.add("loser");
+        if (!winner.querySelector(".winner-tag")) {
+          winner.innerHTML += `<div class="winner-tag">🏆 WINNER</div>`;
+        }
+
+        btnA.disabled = true;
+        btnB.disabled = true;
+      }
+      function checkWinner() {
+        if (countA === maxVotes) showWinner(btnA, btnB, winA);
+        if (countB === maxVotes) showWinner(btnB, btnA, winB);
+      }
+
+      function voteA() {
+        if (countA >= maxVotes || countB >= maxVotes) return;
+        stopBG();
+        soundA.currentTime = 0;
+        jitter(btnA, soundA);
+        countA++;
+        document.getElementById("countA").innerText = countA;
+        checkWinner();
+      }
+
+      function voteB() {
+        if (countA >= maxVotes || countB >= maxVotes) return;
+        stopBG();
+        soundB.currentTime = 0;
+        jitter(btnB, soundB);
+        countB++;
+        document.getElementById("countB").innerText = countB;
+        checkWinner();
+      }
+    </script>
+
+
+  </body>
+</html>
